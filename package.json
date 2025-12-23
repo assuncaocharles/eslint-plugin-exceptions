@@ -4,6 +4,10 @@
   "description": "ESLint plugin that allows approved exceptions per file based on an approvals.json configuration",
   "main": "src/index.js",
   "types": "src/index.d.ts",
+  "bin": {
+    "eslint-plugin-exceptions": "./src/cli.js",
+    "eslint-exceptions": "./src/cli.js"
+  },
   "exports": {
     ".": {
       "types": "./src/index.d.ts",

@@ -16,11 +16,34 @@ Sometimes you need to gradually migrate a codebase to stricter linting rules. Th
 npm install eslint-plugin-exceptions --save-dev
 ```
 
+## Quick Start
+
+Generate an `approvals.json` from your current violations:
+
+```bash
+npx eslint-plugin-exceptions
+```
+
+This will run ESLint and create an `approvals.json` file with all current violations documented.
+
 ## Configuration
 
 ### 1. Create `approvals.json`
 
-Create an `approvals.json` file at the root of your project (or package):
+You can generate it automatically (recommended):
+
+```bash
+# Generate for current directory
+npx eslint-plugin-exceptions
+
+# Generate for a specific package in a monorepo
+npx eslint-plugin-exceptions --path packages/my-app
+
+# Merge with existing approvals (useful for updates)
+npx eslint-plugin-exceptions --merge
+```
+
+Or create manually at the root of your project (or package):
 
 ```json
 {
@@ -166,14 +189,41 @@ Use forward slashes (`/`) in paths, even on Windows:
 
 ### Reducing Technical Debt
 
-Start by documenting all existing violations:
+Use the CLI to generate your initial approvals file:
 
 ```bash
-# Run ESLint and note the violations per file
-npx eslint src/ --format json > violations.json
+npx eslint-plugin-exceptions
 ```
 
-Then create your `approvals.json` based on the current state. Over time, reduce the counts as you fix issues.
+Then gradually reduce the counts as you fix violations. The goal is to eventually remove files from `approvals.json` entirely.
+
+## CLI Reference
+
+```
+Usage: npx eslint-plugin-exceptions [options]
+
+Options:
+  --path, -p <dir>    Path to the package/directory to analyze (default: current directory)
+  --output, -o <file> Output file path (default: approvals.json in the target directory)
+  --merge, -m         Merge with existing approvals.json instead of overwriting
+  --help, -h          Show this help message
+
+Examples:
+  npx eslint-plugin-exceptions
+  npx eslint-plugin-exceptions --path packages/my-app
+  npx eslint-plugin-exceptions -p ./src -o custom-approvals.json
+  npx eslint-plugin-exceptions --merge
+```
+
+## Debugging
+
+If you need to debug the plugin, set the `DEBUG_EXCEPTIONS` environment variable:
+
+```bash
+DEBUG_EXCEPTIONS=1 npx eslint src/
+```
+
+This will output detailed information about how the plugin is processing files and filtering violations.
 
 ## License
 
