@@ -1,0 +1,42 @@
+{
+  "name": "eslint-plugin-exceptions",
+  "version": "1.0.0",
+  "description": "ESLint plugin that allows approved exceptions per file based on an approvals.json configuration",
+  "main": "src/index.js",
+  "exports": {
+    ".": {
+      "require": "./src/index.js",
+      "import": "./src/index.js"
+    }
+  },
+  "scripts": {
+    "test": "node test/test.js",
+    "example": "cd example && npx eslint src/"
+  },
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "exceptions",
+    "approvals"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "eslint": ">=8.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}
+

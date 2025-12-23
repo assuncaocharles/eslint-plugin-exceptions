@@ -1,0 +1,13 @@
+{
+  "no-underscore-dangle": {
+    "src/utils.js": 3,
+    "src/legacy/helpers.js": 5
+  },
+  "no-console": {
+    "src/debug.js": 10
+  },
+  "@typescript-eslint/no-explicit-any": {
+    "src/api/client.ts": 2
+  }
+}
+
