@@ -3,22 +3,29 @@
   "version": "1.0.0",
   "description": "ESLint plugin that allows approved exceptions per file based on an approvals.json configuration",
   "main": "src/index.js",
+  "types": "src/index.d.ts",
   "exports": {
     ".": {
+      "types": "./src/index.d.ts",
       "require": "./src/index.js",
       "import": "./src/index.js"
     }
   },
   "scripts": {
     "test": "node test/test.js",
-    "example": "cd example && npx eslint src/"
+    "prepublishOnly": "npm test",
+    "release:patch": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish"
   },
   "keywords": [
     "eslint",
     "eslintplugin",
     "eslint-plugin",
     "exceptions",
-    "approvals"
+    "approvals",
+    "lint",
+    "technical-debt"
   ],
   "author": "",
   "license": "MIT",
@@ -39,4 +46,3 @@
     "url": ""
   }
 }
-
