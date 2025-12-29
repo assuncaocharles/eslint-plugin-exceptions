@@ -81,18 +81,13 @@ test("getAllowedExceptions handles null approvals", () => {
 
 console.log("\n=== Testing processor ===\n");
 
-test("processor.preprocess returns source with preserved extension", () => {
+test("processor.preprocess returns source unchanged", () => {
   const source = "const x = 1;";
   const result = processor.preprocess(source, "test.tsx");
 
   assert(Array.isArray(result), "Should return array");
   assert.strictEqual(result.length, 1, "Should have one element");
-  assert.strictEqual(result[0].text, source, "Source text should be unchanged");
-  assert.strictEqual(
-    result[0].filename,
-    "0.tsx",
-    "Filename should preserve extension"
-  );
+  assert.strictEqual(result[0], source, "Source should be unchanged");
 });
 
 test("processor.postprocess filters approved violations", () => {
@@ -117,7 +112,8 @@ test("processor.postprocess filters approved violations", () => {
 
 test("processor.postprocess handles ESLint processor suffix in filename", () => {
   const exampleFile = path.resolve(__dirname, "../example/src/utils.js");
-  const fileWithSuffix = exampleFile + "/0_";
+  // When preprocess returns [text], ESLint appends "/0" to the filename
+  const fileWithSuffix = exampleFile + "/0";
 
   const messages = [
     [

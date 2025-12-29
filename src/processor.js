@@ -6,9 +6,10 @@ const {
 } = require("./utils/approvals-loader");
 
 const processor = {
-  preprocess(text, filename) {
-    const ext = path.extname(filename) || ".js";
-    return [{ text, filename: `0${ext}` }];
+  // Return text as-is in a simple array (not objects with filename)
+  // This keeps the original filename intact for TypeScript parser compatibility
+  preprocess(text) {
+    return [text];
   },
 
   postprocess(messages, filename) {
@@ -27,10 +28,11 @@ const processor = {
       return [];
     }
 
+    // When preprocess returns [text], ESLint appends "/0" to the filename
+    // We need to strip this suffix to get the original file path
     let cleanFilename = filename;
-    const processorSuffixMatch = filename.match(/\/\d+_[^/]*$/);
-    if (processorSuffixMatch) {
-      cleanFilename = filename.slice(0, processorSuffixMatch.index);
+    if (filename.endsWith("/0")) {
+      cleanFilename = filename.slice(0, -2);
     }
 
     if (DEBUG) {
