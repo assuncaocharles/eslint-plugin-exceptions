@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-exceptions",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "ESLint plugin that allows approved exceptions per file based on an approvals.json configuration",
   "main": "src/index.js",
   "types": "src/index.d.ts",
