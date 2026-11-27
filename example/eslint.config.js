@@ -6,7 +6,7 @@ export default [
     plugins: {
       exceptions,
     },
-    processor: "exceptions/.js",
+    processor: "exceptions/passthrough",
     rules: {
       "no-underscore-dangle": "error",
       "no-console": "warn",

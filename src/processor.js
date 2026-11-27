@@ -1,11 +1,15 @@
 const path = require("path");
-const {
-  getApprovalsForFile,
-  getRelativePath,
-  getAllowedExceptions,
-} = require("./utils/approvals-loader");
+const { filterMessagesForFile } = require("./core/filter");
+
+// Set by the CLI when it runs ESLint, so that `generate` and `check` see the
+// raw violations instead of results that were already filtered.
+const DISABLE_ENV = "ESLINT_EXCEPTIONS_DISABLE";
 
 const processor = {
+  meta: {
+    name: "eslint-plugin-exceptions/passthrough",
+  },
+
   // Return text as-is in a simple array (not objects with filename)
   // This keeps the original filename intact for TypeScript parser compatibility
   preprocess(text) {
@@ -14,6 +18,10 @@ const processor = {
 
   postprocess(messages, filename) {
     const allMessages = messages.flat();
+
+    if (process.env[DISABLE_ENV] === "1") {
+      return allMessages;
+    }
 
     const DEBUG = process.env.DEBUG_EXCEPTIONS === "1";
     if (DEBUG) {
@@ -30,85 +38,20 @@ const processor = {
 
     // When preprocess returns [text], ESLint appends "/0" to the filename
     // We need to strip this suffix to get the original file path
-    let cleanFilename = filename;
-    if (filename.endsWith("/0")) {
-      cleanFilename = filename.slice(0, -2);
-    }
+    const cleanFilename = filename.endsWith("/0")
+      ? filename.slice(0, -2)
+      : filename;
+
+    const result = filterMessagesForFile(
+      allMessages,
+      path.resolve(cleanFilename)
+    );
 
     if (DEBUG) {
-      console.log(`[exceptions] clean filename: ${cleanFilename}`);
+      console.log(`[exceptions] ${cleanFilename}: ${result.length} reported`);
     }
 
-    const absolutePath = path.resolve(cleanFilename);
-
-    const { approvals, approvalsDir } = getApprovalsForFile(absolutePath);
-
-    if (!approvals || !approvalsDir) {
-      return allMessages;
-    }
-
-    const relativePath = getRelativePath(absolutePath, approvalsDir);
-
-    if (DEBUG) {
-      console.log(`[exceptions] approvalsDir: ${approvalsDir}`);
-      console.log(`[exceptions] relativePath: ${relativePath}`);
-      console.log(
-        `[exceptions] approvals:`,
-        JSON.stringify(approvals, null, 2)
-      );
-    }
-
-    const messagesByRule = new Map();
-    for (const message of allMessages) {
-      const ruleId = message.ruleId;
-      if (!ruleId) {
-        if (!messagesByRule.has(null)) {
-          messagesByRule.set(null, []);
-        }
-        messagesByRule.get(null).push(message);
-        continue;
-      }
-
-      if (!messagesByRule.has(ruleId)) {
-        messagesByRule.set(ruleId, []);
-      }
-      messagesByRule.get(ruleId).push(message);
-    }
-
-    const filteredMessages = [];
-
-    for (const [ruleId, ruleMessages] of messagesByRule) {
-      if (ruleId === null) {
-        filteredMessages.push(...ruleMessages);
-        continue;
-      }
-
-      const allowedCount = getAllowedExceptions(
-        approvals,
-        ruleId,
-        relativePath
-      );
-      const actualCount = ruleMessages.length;
-
-      if (actualCount <= allowedCount) {
-        continue;
-      }
-
-      if (allowedCount === 0) {
-        filteredMessages.push(...ruleMessages);
-      } else {
-        const excessMessages = ruleMessages.slice(allowedCount);
-
-        if (excessMessages.length > 0) {
-          const firstExcess = excessMessages[0];
-          firstExcess.message = `${firstExcess.message} (${actualCount} violations found, but only ${allowedCount} approved in approvals.json)`;
-        }
-
-        filteredMessages.push(...excessMessages);
-      }
-    }
-
-    return filteredMessages;
+    return result;
   },
 
   supportsAutofix: true,
