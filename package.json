@@ -1,13 +1,13 @@
 {
   "name": "eslint-plugin-exceptions",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Approve a fixed number of lint violations per file with approvals.json. Works with ESLint (processor) and oxlint (CLI).",
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "bin": {
-    "eslint-plugin-exceptions": "./src/cli.js",
-    "eslint-exceptions": "./src/cli.js",
-    "eslint-exceptions-oxlint-lsp": "./src/oxlint-lsp.js"
+    "eslint-plugin-exceptions": "src/cli.js",
+    "eslint-exceptions": "src/cli.js",
+    "eslint-exceptions-oxlint-lsp": "src/oxlint-lsp.js"
   },
   "exports": {
     ".": {
