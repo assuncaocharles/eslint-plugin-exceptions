@@ -4,7 +4,7 @@ const _privateVar1 = "first";
 const _privateVar2 = "second";
 const _privateVar3 = "third";
 
-// If you uncomment the line below, ESLint will report an error
+// If you uncomment the line below, ESLint / oxlint will report an error
 // because it exceeds the approved count of 3
 // const _privateVar4 = "fourth";
 

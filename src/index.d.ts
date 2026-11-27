@@ -2,15 +2,12 @@ import type { Linter } from "eslint";
 
 interface ProcessorMeta {
   name: string;
-  version: string;
+  version?: string;
 }
 
 interface Processor {
   meta?: ProcessorMeta;
-  preprocess: (
-    text: string,
-    filename: string
-  ) => Array<{ text: string; filename: string }>;
+  preprocess: (text: string, filename: string) => string[];
   postprocess: (
     messages: Linter.LintMessage[][],
     filename: string

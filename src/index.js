@@ -3,7 +3,7 @@ const processor = require("./processor");
 const plugin = {
   meta: {
     name: "eslint-plugin-exceptions",
-    version: "1.0.0",
+    version: require("../package.json").version,
   },
 
   processors: {
