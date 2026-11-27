@@ -6,7 +6,8 @@
   "types": "src/index.d.ts",
   "bin": {
     "eslint-plugin-exceptions": "./src/cli.js",
-    "eslint-exceptions": "./src/cli.js"
+    "eslint-exceptions": "./src/cli.js",
+    "eslint-exceptions-oxlint-lsp": "./src/oxlint-lsp.js"
   },
   "exports": {
     ".": {
@@ -16,11 +17,11 @@
     }
   },
   "scripts": {
-    "test": "node test/test.js",
-    "prepublishOnly": "npm test",
-    "release:patch": "npm version patch && npm publish",
-    "release:minor": "npm version minor && npm publish",
-    "release:major": "npm version major && npm publish"
+    "test": "node test/test.js && node test/lsp.test.js",
+    "release:patch": "npm version patch && git push --follow-tags",
+    "release:minor": "npm version minor && git push --follow-tags",
+    "release:major": "npm version major && git push --follow-tags",
+    "prepublishOnly": "npm test"
   },
   "keywords": [
     "eslint",
@@ -52,7 +53,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/assuncaocharles/eslint-plugin-exceptions.git"
   },
   "peerDependenciesMeta": {
     "eslint": {
@@ -61,5 +62,9 @@
     "oxlint": {
       "optional": true
     }
+  },
+  "homepage": "https://github.com/assuncaocharles/eslint-plugin-exceptions#readme",
+  "bugs": {
+    "url": "https://github.com/assuncaocharles/eslint-plugin-exceptions/issues"
   }
 }

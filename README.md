@@ -40,11 +40,11 @@ How the filtering is wired in depends on the linter:
 | | ESLint | oxlint |
 | --- | --- | --- |
 | Integration | Processor in your ESLint config | `eslint-exceptions check` CLI that wraps `oxlint` |
-| Editor integration | ✅ Filtered results in the editor | ❌ The editor shows all violations; CI is the gate |
+| Editor integration | ✅ Works with the ESLint extension, no setup | ✅ Point the oxc extension at the bundled language server wrapper |
 | Generate `approvals.json` | `npx eslint-exceptions` | `npx eslint-exceptions --linter oxlint` |
 | Enforce in CI | `npx eslint .` | `npx eslint-exceptions check --linter oxlint` |
 
-Oxlint has no processor API, so with oxlint the CLI runs `oxlint --format json`, applies `approvals.json` to the output and sets the exit code.
+Oxlint has no processor API, so with oxlint the CLI runs `oxlint --format json`, applies `approvals.json` to the output and sets the exit code. In the editor, a small wrapper sits between the editor and `oxlint --lsp` and removes approved diagnostics the same way.
 
 Both linters read the same `approvals.json` format. Oxlint rule names are converted to ESLint rule IDs (see [Rule IDs with oxlint](#rule-ids-with-oxlint)), so one file works for both. This is handy while migrating from one linter to the other.
 
@@ -181,6 +181,40 @@ To pass extra flags to oxlint, add them after `--`:
 npx eslint-exceptions check --linter oxlint -- --type-aware --config .oxlintrc.ci.json
 ```
 
+### 5. Set up your editor
+
+Out of the box, the oxc editor extension shows every violation, including approved ones. The package includes a wrapper around oxlint's language server that hides approved violations, so the editor matches `eslint-exceptions check`.
+
+#### VS Code (and Cursor and other VS Code forks)
+
+Install the [Oxc extension](https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode), then point its oxlint binary path at the wrapper in `.vscode/settings.json`:
+
+```json
+{
+  "oxc.path.oxlint": "./node_modules/eslint-plugin-exceptions/src/oxlint-lsp.js"
+}
+```
+
+Relative paths resolve from the first workspace folder. In a monorepo, use the path to wherever the package is installed.
+
+#### Other editors
+
+Any editor where you can set the oxlint language server command works. Use `node_modules/.bin/eslint-exceptions-oxlint-lsp --lsp` in place of `oxlint --lsp`. For example, in Neovim 0.11+:
+
+```lua
+vim.lsp.config("oxlint", {
+  cmd = { "node_modules/.bin/eslint-exceptions-oxlint-lsp", "--lsp" },
+})
+```
+
+#### How the editor wrapper works
+
+- It starts the project's own `oxlint --lsp` and forwards everything unchanged, except diagnostics.
+- For each file, it applies the nearest `approvals.json` with the same rules as `check`.
+- It supports both ways editors get diagnostics: the server pushing them, or the editor requesting them (VS Code).
+- When `approvals.json` changes, open files are re-checked within about a second.
+- It finds oxlint from the project's `node_modules`. To use another binary, set `OXLINT_EXCEPTIONS_OXLINT_PATH`.
+
 ### Rule IDs with oxlint
 
 Oxlint reports rules as `plugin(rule)`. In `approvals.json` they use the ESLint rule IDs:
@@ -298,6 +332,16 @@ To see how the ESLint processor filters each file, set `DEBUG_EXCEPTIONS`:
 ```bash
 DEBUG_EXCEPTIONS=1 npx eslint src/
 ```
+
+## Releasing
+
+Releases are published to npm from GitHub Actions (`.github/workflows/publish.yml`) with [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token is stored in the repo. A release is triggered by pushing a version tag:
+
+```bash
+npm run release:minor   # or release:patch / release:major
+```
+
+This bumps the version in `package.json`, commits, tags `vX.Y.Z` and pushes. The workflow checks that the tag matches `package.json`, runs the tests and publishes.
 
 ## License
 
