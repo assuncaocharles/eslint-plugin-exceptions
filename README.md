@@ -333,17 +333,24 @@ To see how the ESLint processor filters each file, set `DEBUG_EXCEPTIONS`:
 DEBUG_EXCEPTIONS=1 npx eslint src/
 ```
 
-## Releasing
+## Contributing and releases
 
-Releases are published to npm from GitHub Actions (`.github/workflows/publish.yml`) with [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token is stored in the repo.
+Every merge to `master` is released automatically, and the PR title decides the version. Titles must follow [Conventional Commits](https://www.conventionalcommits.org/); the **PR title** check enforces this on every PR.
 
-To release, open a PR that bumps `version` in `package.json` (and `package-lock.json`):
+| PR title | Release | Example |
+| --- | --- | --- |
+| `fix: ...`, `perf: ...`, `revert: ...` | Patch | 1.2.1 → 1.2.2 |
+| `feat: ...` | Minor | 1.2.1 → 1.3.0 |
+| `feat!: ...`, `fix!: ...` (any type with `!`), or `BREAKING CHANGE:` in the PR description | Major | 1.2.1 → 2.0.0 |
+| `docs:`, `chore:`, `ci:`, `test:`, `refactor:`, `style:`, `build:` | None | |
 
-```bash
-npm run release:minor   # or release:patch / release:major
-```
+A scope is optional: `fix(lsp): handle pull diagnostics`.
 
-When the PR is merged, the workflow sees a version that isn't on npm yet, runs the tests, publishes it and creates the `vX.Y.Z` tag and GitHub release. Merges that don't change the version publish nothing. To retry a failed publish, run the workflow by hand from the Actions tab.
+How it works (`.github/workflows/publish.yml`):
+
+- The current version is the highest of the `vX.Y.Z` git tags and the versions on npm. The `version` field in `package.json` stays `0.0.0-development` and is set only at publish time, so releases never need a commit pushed to `master`.
+- After the tests pass, the workflow publishes with [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token is stored in the repo. It then creates the tag and a GitHub release with generated notes.
+- If a publish fails, re-run the **Publish** workflow from the Actions tab. A commit that already has a release tag is never published twice.
 
 ## License
 
