@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-exceptions",
-  "version": "1.2.1",
+  "version": "0.0.0-development",
   "description": "Approve a fixed number of lint violations per file with approvals.json. Works with ESLint (processor) and oxlint (CLI).",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -17,10 +17,7 @@
     }
   },
   "scripts": {
-    "test": "node test/test.js && node test/lsp.test.js",
-    "release:patch": "npm version patch --no-git-tag-version",
-    "release:minor": "npm version minor --no-git-tag-version",
-    "release:major": "npm version major --no-git-tag-version",
+    "test": "node test/test.js && node test/lsp.test.js && node test/release.test.js",
     "prepublishOnly": "npm test"
   },
   "keywords": [
