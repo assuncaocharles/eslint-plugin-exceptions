@@ -1,49 +1,18 @@
 # eslint-plugin-exceptions
 
-An ESLint plugin that allows you to approve a specific number of rule violations per file using an `approvals.json` configuration file.
+Approve a fixed number of lint violations per file with an `approvals.json` file. Works with **ESLint** and **oxlint**.
 
 ## Why?
 
-Sometimes you need to gradually migrate a codebase to stricter linting rules. This plugin lets you:
+When you turn on a stricter rule in an existing codebase, you rarely want to fix every violation at once. This package lets you:
 
-- Track known violations in a structured way
-- Prevent new violations while allowing existing ones
-- Gradually reduce the approved count as you fix issues
+- Record the violations that already exist, per rule and per file
+- Fail the build on any **new** violation
+- Lower the approved counts as you fix issues, until each file drops out of `approvals.json`
 
-## Installation
+## How it works
 
-```bash
-npm install eslint-plugin-exceptions --save-dev
-```
-
-## Quick Start
-
-Generate an `approvals.json` from your current violations:
-
-```bash
-npx eslint-plugin-exceptions
-```
-
-This will run ESLint and create an `approvals.json` file with all current violations documented.
-
-## Configuration
-
-### 1. Create `approvals.json`
-
-You can generate it automatically (recommended):
-
-```bash
-# Generate for current directory
-npx eslint-plugin-exceptions
-
-# Generate for a specific package in a monorepo
-npx eslint-plugin-exceptions --path packages/my-app
-
-# Merge with existing approvals (useful for updates)
-npx eslint-plugin-exceptions --merge
-```
-
-Or create manually at the root of your project (or package):
+You keep one `approvals.json` (per project or per package) that maps each rule to the number of violations approved in each file:
 
 ```json
 {
@@ -52,42 +21,73 @@ Or create manually at the root of your project (or package):
     "src/components/DataGrid.tsx": 3
   },
   "@typescript-eslint/no-explicit-any": {
-    "src/api/client.ts": 10,
-    "src/types/legacy.ts": 25
+    "src/api/client.ts": 10
   }
 }
 ```
 
-The format is:
+For every file, the nearest `approvals.json` (in the file's directory or a parent) is used:
 
-```json
-{
-  "rule-name": {
-    "relative/path/to/file": numberOfAllowedViolations
-  }
-}
+- If a file has **at most** the approved number of violations for a rule, they are hidden.
+- If it has **more**, the extra violations are reported, with context:
+
+```
+Unexpected dangling '_' in '_privateVar4' (4 violations found, but only 3 approved in approvals.json)
 ```
 
-### 2. Configure ESLint
+How the filtering is wired in depends on the linter:
 
-#### Flat Config (ESLint 9+, `eslint.config.js`)
+| | ESLint | oxlint |
+| --- | --- | --- |
+| Integration | Processor in your ESLint config | `eslint-exceptions check` CLI that wraps `oxlint` |
+| Editor integration | ✅ Filtered results in the editor | ❌ The editor shows all violations; CI is the gate |
+| Generate `approvals.json` | `npx eslint-exceptions` | `npx eslint-exceptions --linter oxlint` |
+| Enforce in CI | `npx eslint .` | `npx eslint-exceptions check --linter oxlint` |
+
+Oxlint has no processor API, so with oxlint the CLI runs `oxlint --format json`, applies `approvals.json` to the output and sets the exit code.
+
+Both linters read the same `approvals.json` format. Oxlint rule names are converted to ESLint rule IDs (see [Rule IDs with oxlint](#rule-ids-with-oxlint)), so one file works for both. This is handy while migrating from one linter to the other.
+
+---
+
+## Using with ESLint
+
+### 1. Install
+
+```bash
+npm install --save-dev eslint eslint-plugin-exceptions
+```
+
+Requires ESLint 8 or later and Node.js 18 or later.
+
+### 2. Generate `approvals.json`
+
+From the project (or package) root:
+
+```bash
+npx eslint-exceptions
+```
+
+This runs ESLint, counts the current violations and writes `approvals.json`. Review it and commit it.
+
+### 3. Add the processor to your config
+
+#### Flat config (`eslint.config.js`)
 
 ```javascript
 import exceptions from "eslint-plugin-exceptions";
 
 export default [
+  // ... your other configs with rules
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
-    plugins: {
-      exceptions,
-    },
+    plugins: { exceptions },
     processor: "exceptions/passthrough",
   },
-  // ... your other configs with rules
 ];
 ```
 
-Or use the recommended config:
+Or use the recommended config, which applies the processor to all files:
 
 ```javascript
 import exceptions from "eslint-plugin-exceptions";
@@ -98,7 +98,7 @@ export default [
 ];
 ```
 
-#### Legacy Config (`.eslintrc.js`)
+#### Legacy config (`.eslintrc.js`)
 
 ```javascript
 module.exports = {
@@ -112,56 +112,146 @@ module.exports = {
 };
 ```
 
-## How It Works
+### 4. Lint as usual
 
-1. ESLint runs all your configured rules normally
-2. The plugin's processor intercepts the results
-3. For each file, it looks for an `approvals.json` in the file's directory or any parent directory
-4. Violations are grouped by rule
-5. If a file has approved exceptions for a rule, those violations are filtered out (up to the approved count)
-6. Any violations beyond the approved count are reported normally
+```bash
+npx eslint .
+```
 
-### Example
+Approved violations are hidden, both on the command line and in your editor. Only new violations are reported.
 
-Given this `approvals.json`:
+> The processor does not change the source, so it works alongside parsers like `@typescript-eslint/parser`. When ESLint applies more than one processor to the same file, only one of them is used. If another plugin already sets a processor for those files (for example, for `.vue` or `.md`), use `eslint-exceptions check` there instead.
+
+---
+
+## Using with oxlint
+
+### 1. Install
+
+```bash
+npm install --save-dev oxlint eslint-plugin-exceptions
+```
+
+Requires oxlint 1.0 or later and Node.js 18 or later. ESLint is **not** required.
+
+### 2. Configure oxlint
+
+Configure your rules in `.oxlintrc.json` as usual. Nothing in it changes for this package:
 
 ```json
 {
-  "no-underscore-dangle": {
-    "src/utils.ts": 3
+  "plugins": ["typescript"],
+  "rules": {
+    "no-underscore-dangle": "error",
+    "typescript/no-explicit-any": "error"
   }
 }
 ```
 
-And `src/utils.ts` with 3 underscore violations:
+### 3. Generate `approvals.json`
 
-- ✅ No errors reported (3 violations ≤ 3 approved)
-
-If you add a 4th underscore variable:
-
-- ❌ 1 error reported (4 violations > 3 approved)
-
-The error message will include context:
-
-```
-Unexpected dangling '_' in '_privateVar' (4 violations found, but only 3 approved in approvals.json)
+```bash
+npx eslint-exceptions --linter oxlint
 ```
 
-## Supported File Extensions
+Review the generated `approvals.json` and commit it.
 
-The plugin includes processors for common file types:
+### 4. Run the check
 
-- `.js`, `.jsx`
-- `.ts`, `.tsx`
-- `.mjs`, `.cjs`
-- `.mts`, `.cts`
-- `.vue`, `.svelte`
+Run this in place of `oxlint`, locally and in CI:
+
+```bash
+npx eslint-exceptions check --linter oxlint
+```
+
+It exits with `1` when there are unapproved errors and `0` otherwise. A typical setup in `package.json`:
+
+```json
+{
+  "scripts": {
+    "lint": "eslint-exceptions check --linter oxlint",
+    "lint:approve": "eslint-exceptions --linter oxlint --merge"
+  }
+}
+```
+
+To pass extra flags to oxlint, add them after `--`:
+
+```bash
+npx eslint-exceptions check --linter oxlint -- --type-aware --config .oxlintrc.ci.json
+```
+
+### Rule IDs with oxlint
+
+Oxlint reports rules as `plugin(rule)`. In `approvals.json` they use the ESLint rule IDs:
+
+| oxlint | `approvals.json` key |
+| --- | --- |
+| `eslint(no-console)` | `no-console` |
+| `typescript(no-explicit-any)` | `@typescript-eslint/no-explicit-any` |
+| `next(no-img-element)` | `@next/next/no-img-element` |
+| `node(no-path-concat)` | `n/no-path-concat` |
+| `unicorn(no-array-reduce)`, `react(...)`, `import(...)`, `jsx-a11y(...)`, … | `unicorn/no-array-reduce`, `react/...`, `import/...`, `jsx-a11y/...` |
+| JS plugins, e.g. `my-plugin(no-foo)` | `my-plugin/no-foo` |
+
+### Using ESLint and oxlint together
+
+If you run oxlint for most rules and ESLint for the rest (for example with [`eslint-plugin-oxlint`](https://github.com/oxc-project/eslint-plugin-oxlint)), both can share one `approvals.json`:
+
+```bash
+npx eslint-exceptions --linter oxlint --merge
+npx eslint-exceptions --linter eslint --merge
+```
+
+Then run `eslint-exceptions check --linter oxlint` and `eslint .` (with the processor) in CI.
+
+---
+
+## CLI reference
+
+The package installs two equivalent commands: `eslint-exceptions` and `eslint-plugin-exceptions`.
+
+```
+Usage: npx eslint-exceptions [command] [options] [-- <linter args>]
+
+Commands:
+  generate (default)  Write approvals.json from the current violations
+  check               Run the linter and fail only on violations that are
+                      not covered by approvals.json (use this with oxlint)
+
+Options:
+  --linter, -l <name>   eslint | oxlint (default: auto-detected from config files)
+  --path, -p <dir>      Directory to lint (default: current directory)
+  --help, -h            Show this help message
+
+generate options:
+  --output, -o <file>   Output file (default: approvals.json in --path)
+  --merge, -m           Merge with existing approvals.json instead of overwriting
+
+check options:
+  --max-warnings <n>    Fail if more than n unapproved warnings remain (default: no limit)
+  --strict              Also fail when an approval count is higher than the
+                        actual number of violations (keeps approvals.json tight)
+
+Anything after "--" is passed to the linter, e.g. -- --type-aware
+```
+
+Notes:
+
+- **Linter detection:** without `--linter`, oxlint is used when the closest config file is `.oxlintrc.json`; otherwise ESLint is used. If both configs are in the same directory, ESLint is used. Pass `--linter` in scripts to be explicit.
+- **Raw counts:** `generate` and `check` always see every violation, even if the ESLint processor is configured, so the counts are never filtered twice.
+- **Merging:** `--merge` keeps the higher count for each entry and never removes entries. To shrink `approvals.json` after fixing violations, run `generate` without `--merge`.
+- **Lowering counts:** `check` lists approvals that are higher than the actual count. Use `--strict` in CI to make them fail the build, so fixed violations can't come back unnoticed.
+- **Exit codes:** `0` success, `1` unapproved violations (or a `--strict`/`--max-warnings` failure), `2` usage or linter error.
+- **Binaries:** the CLI uses the linter installed in `node_modules`. If none is found, it falls back to `npx`.
+
+`check` also works with ESLint (`--linter eslint`), for example where you can't add the processor to the config.
 
 ## Tips
 
-### Monorepo Support
+### Monorepo support
 
-Each package can have its own `approvals.json`. The plugin searches up the directory tree from each file to find the nearest `approvals.json`.
+Each package can have its own `approvals.json`. The nearest one up the directory tree is used for each file.
 
 ```
 my-monorepo/
@@ -175,9 +265,16 @@ my-monorepo/
 │       └── src/
 ```
 
-### Path Format
+Generate one per package with `--path`:
 
-Use forward slashes (`/`) in paths, even on Windows:
+```bash
+npx eslint-exceptions --path packages/app
+npx eslint-exceptions --linter oxlint --path packages/lib
+```
+
+### Path format
+
+Paths are relative to the directory that contains `approvals.json`. Use forward slashes (`/`), even on Windows:
 
 ```json
 {
@@ -187,43 +284,20 @@ Use forward slashes (`/`) in paths, even on Windows:
 }
 ```
 
-### Reducing Technical Debt
+### Reducing technical debt
 
-Use the CLI to generate your initial approvals file:
-
-```bash
-npx eslint-plugin-exceptions
-```
-
-Then gradually reduce the counts as you fix violations. The goal is to eventually remove files from `approvals.json` entirely.
-
-## CLI Reference
-
-```
-Usage: npx eslint-plugin-exceptions [options]
-
-Options:
-  --path, -p <dir>    Path to the package/directory to analyze (default: current directory)
-  --output, -o <file> Output file path (default: approvals.json in the target directory)
-  --merge, -m         Merge with existing approvals.json instead of overwriting
-  --help, -h          Show this help message
-
-Examples:
-  npx eslint-plugin-exceptions
-  npx eslint-plugin-exceptions --path packages/my-app
-  npx eslint-plugin-exceptions -p ./src -o custom-approvals.json
-  npx eslint-plugin-exceptions --merge
-```
+1. Generate the initial `approvals.json`.
+2. When you fix violations in a file, lower its count (or run `generate` again without `--merge`).
+3. Add `--strict` to `check` in CI so counts can't stay higher than needed.
+4. The goal is to eventually remove each file from `approvals.json`.
 
 ## Debugging
 
-If you need to debug the plugin, set the `DEBUG_EXCEPTIONS` environment variable:
+To see how the ESLint processor filters each file, set `DEBUG_EXCEPTIONS`:
 
 ```bash
 DEBUG_EXCEPTIONS=1 npx eslint src/
 ```
-
-This will output detailed information about how the plugin is processing files and filtering violations.
 
 ## License
 
