@@ -1,6 +1,22 @@
+<!-- site:skip -->
+<p align="center">
+  <a href="https://assuncaocharles.github.io/eslint-plugin-exceptions/">
+    <img src="https://raw.githubusercontent.com/assuncaocharles/eslint-plugin-exceptions/master/site/public/og.png" alt="eslint-plugin-exceptions: strict lint rules today, old code later. Approve existing violations per file in approvals.json and fail only on new ones." width="100%" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/eslint-plugin-exceptions"><img src="https://img.shields.io/npm/v/eslint-plugin-exceptions?color=4f46e5&label=npm" alt="npm version" /></a>
+  <a href="https://github.com/assuncaocharles/eslint-plugin-exceptions/actions/workflows/ci.yml"><img src="https://github.com/assuncaocharles/eslint-plugin-exceptions/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
+  <a href="#license"><img src="https://img.shields.io/npm/l/eslint-plugin-exceptions?color=4f46e5" alt="MIT license" /></a>
+</p>
+<!-- /site:skip -->
+
 # eslint-plugin-exceptions
 
 Approve a fixed number of lint violations per file with an `approvals.json` file. Works with **ESLint** and **oxlint**.
+
+**[Documentation](https://assuncaocharles.github.io/eslint-plugin-exceptions/docs.html)** · **[Playground](https://assuncaocharles.github.io/eslint-plugin-exceptions/playground.html)**
 
 ## Why?
 
@@ -351,6 +367,16 @@ How it works (`.github/workflows/publish.yml`):
 - The current version is the highest of the `vX.Y.Z` git tags and the versions on npm. The `version` field in `package.json` stays `0.0.0-development` and is set only at publish time, so releases never need a commit pushed to `master`.
 - After the tests pass, the workflow publishes with [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token is stored in the repo. It then creates the tag and a GitHub release with generated notes.
 - If a publish fails, re-run the **Publish** workflow from the Actions tab. A commit that already has a release tag is never published twice.
+
+### Docs site and playground
+
+The site in `site/` is built from this README and deployed to GitHub Pages after each release. To work on it locally:
+
+```bash
+npm run dev:site   # builds site/dist and serves http://localhost:4173
+```
+
+The social preview image (`site/public/og.png`) is rendered from `site/og/og.html`. After editing the HTML, regenerate it with `npm run og` (needs Playwright with Chromium).
 
 ## License
 

@@ -1,0 +1,107 @@
+<div class="pg">
+  <div class="pg-intro">
+    <div>
+      <h1>Playground</h1>
+      <p>
+        Edit the code, <code>approvals.json</code> or the rules and see what the plugin reports.
+        Rules run with ESLint in your browser; approvals are applied with the plugin's own code.
+      </p>
+    </div>
+  </div>
+
+  <div class="pg-toolbar">
+    <label class="field" for="example">
+      Example
+      <select id="example"></select>
+    </label>
+    <div class="segmented" role="group" aria-label="Linter">
+      <button type="button" data-view="eslint" aria-pressed="true">ESLint</button>
+      <button type="button" data-view="oxlint" aria-pressed="false">oxlint</button>
+    </div>
+    <label class="switch" title="Fail when an approval count is higher than needed, like check --strict">
+      <input type="checkbox" id="strict" /> Strict
+    </label>
+    <label class="switch" title="Show approved violations as dotted underlines">
+      <input type="checkbox" id="show-approved" checked /> Show approved
+    </label>
+    <span class="spacer"></span>
+    <button type="button" class="button button-sm" id="reset">Reset</button>
+    <button type="button" class="button button-sm" id="share">
+      {{icon:link}}<span>Share</span>
+    </button>
+  </div>
+
+  <p class="pg-summary" id="summary" aria-live="polite"></p>
+
+  <div class="pg-grid">
+    <section class="pane" aria-label="Source file">
+      <div class="pane-head">
+        <span class="pane-title">{{icon:file}} File</span>
+        <label class="visually-hidden" for="file-path">File path relative to approvals.json</label>
+        <input type="text" id="file-path" spellcheck="false" autocomplete="off" />
+      </div>
+      <div class="editor" id="code-editor"><div class="loading">Loading editor…</div></div>
+    </section>
+
+    <div class="pg-side">
+      <section class="pane" aria-label="approvals.json">
+        <div class="pane-head">
+          <span class="pane-title">{{icon:json}} approvals.json</span>
+          <span class="spacer"></span>
+          <button type="button" class="button button-sm" id="approve" title="Set this file's counts to the current violations">
+            Approve current violations
+          </button>
+        </div>
+        <div class="editor" id="approvals-editor"><div class="loading">Loading editor…</div></div>
+        <div class="pane-error" id="approvals-error" role="alert" hidden></div>
+      </section>
+
+      <section class="pane" aria-label="Rules">
+        <div class="pane-head">
+          <span class="pane-title">{{icon:sliders}} Rules</span>
+        </div>
+        <ul class="rules-list" id="rules"></ul>
+      </section>
+    </div>
+  </div>
+
+  <section class="pane pg-results" aria-label="Results">
+    <div class="results-head">
+      <div class="status" id="status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="status-text">Running…</span>
+        <span class="status-sub" id="status-sub"></span>
+      </div>
+      <span class="spacer"></span>
+      <div class="tabs" role="tablist" id="result-tabs">
+        <button role="tab" data-tab="problems" aria-controls="panel-problems" aria-selected="true">
+          Problems <span class="tab-count" id="count-problems">0</span>
+        </button>
+        <button role="tab" data-tab="rules" aria-controls="panel-rules" aria-selected="false">
+          Rules <span class="tab-count" id="count-rules">0</span>
+        </button>
+        <button role="tab" data-tab="cli" aria-controls="panel-cli" aria-selected="false">CLI output</button>
+      </div>
+    </div>
+
+    <div class="results-body" id="panel-problems" role="tabpanel">
+      <ul class="problems" id="problems"></ul>
+    </div>
+    <div class="results-body" id="panel-rules" role="tabpanel" hidden>
+      <div class="table-scroll">
+        <table class="rule-table">
+          <thead>
+            <tr><th>Rule</th><th class="num">Found</th><th class="num">Approved</th><th>Status</th></tr>
+          </thead>
+          <tbody id="rule-rows"></tbody>
+        </table>
+      </div>
+      <div class="pane-note" id="rules-note" hidden></div>
+    </div>
+    <div class="results-body terminal" id="panel-cli" role="tabpanel" hidden>
+      <div id="cli-output" class="terminal"><pre></pre></div>
+    </div>
+  </section>
+
+  <noscript><p>The playground needs JavaScript.</p></noscript>
+</div>

@@ -1,0 +1,168 @@
+<!doctype html>
+<!-- Source for site/public/og.png (1200x630). Regenerate with: npm run og -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>eslint-plugin-exceptions social card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=block" />
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; }
+  body {
+    position: relative;
+    overflow: hidden;
+    background: #0a0b12;
+    color: #f3f4fa;
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Background: glows + fine grid that fades out */
+  .glow-a, .glow-b {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+  }
+  .glow-a { width: 640px; height: 640px; left: -180px; top: -280px; background: #4f46e5; opacity: .55; }
+  .glow-b { width: 560px; height: 560px; right: -120px; bottom: -300px; background: #db2777; opacity: .38; }
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgb(255 255 255 / 5%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 5%) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 80% 70% at 30% 40%, #000 30%, transparent 80%);
+  }
+
+  .content {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 470px;
+    gap: 40px;
+    height: 100%;
+    padding: 64px 64px 56px 72px;
+  }
+
+  .left { display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; gap: 14px; font: 600 24px/1 "Inter"; letter-spacing: -.01em; color: #e6e8f2; }
+  .mark { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: grid; place-items: center; box-shadow: 0 8px 24px rgb(99 102 241 / 45%), inset 0 1px 0 rgb(255 255 255 / 25%); }
+  .mark svg { width: 26px; height: 26px; }
+
+  h1 {
+    margin-top: 52px;
+    font: 800 62px/1.04 "Inter";
+    letter-spacing: -.04em;
+  }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, #a5b4fc, #f0abfc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .sub {
+    margin-top: 22px;
+    font: 500 23px/1.45 "Inter";
+    color: #a7acbf;
+    max-width: 560px;
+  }
+  .chips { display: flex; gap: 10px; margin-top: auto; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 9px;
+    height: 40px; padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 12%);
+    background: rgb(255 255 255 / 6%);
+    font: 600 17px/1 "Inter";
+    color: #dfe2ee;
+  }
+  .chip i { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Right: stacked cards */
+  .right { position: relative; }
+  .card {
+    position: absolute;
+    border-radius: 18px;
+    border: 1px solid rgb(255 255 255 / 10%);
+    background: rgb(20 22 34 / 88%);
+    box-shadow: 0 30px 60px rgb(0 0 0 / 45%), inset 0 1px 0 rgb(255 255 255 / 6%);
+    font: 400 17px/1.75 "JetBrains Mono", monospace;
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+    font: 500 15px/1 "JetBrains Mono";
+    color: #8b91a8;
+  }
+  .card-head b { width: 11px; height: 11px; border-radius: 50%; background: #2c3044; }
+  .card-head span { margin-left: 6px; }
+  .card pre { padding: 16px 20px; font: inherit; white-space: pre; }
+
+  .json { top: 0; left: 0; width: 430px; transform: rotate(-2.5deg); }
+  .k { color: #93c5fd; }
+  .s { color: #86efac; }
+  .n { color: #fcd34d; }
+  .p { color: #6b7189; }
+
+  .term { top: 318px; left: 40px; width: 430px; background: rgb(9 10 16 / 94%); transform: rotate(1.5deg); }
+  .row { display: flex; align-items: center; gap: 12px; padding: 7px 0; font-size: 17px; }
+  .row .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font: 700 13px/1 "Inter"; color: #0a0b12; flex: none; }
+  .ok .dot { background: #4ade80; }
+  .bad .dot { background: #f87171; }
+  .row .muted { color: #8b91a8; }
+  .row .strong { color: #f3f4fa; }
+  .term .body { padding: 14px 20px 18px; }
+  .exit { margin-top: 8px; padding-top: 12px; border-top: 1px dashed rgb(255 255 255 / 10%); color: #f87171; font-size: 16px; }
+</style>
+</head>
+<body>
+  <div class="glow-a"></div>
+  <div class="glow-b"></div>
+  <div class="grid"></div>
+
+  <div class="content">
+    <div class="left">
+      <div class="brand">
+        <div class="mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </div>
+        eslint-plugin-exceptions
+      </div>
+      <h1>Strict lint rules <em>today.</em><br />Old code later.</h1>
+      <p class="sub">Approve existing violations per file in approvals.json. Fail only on new ones.</p>
+      <div class="chips">
+        <span class="chip"><i style="background:#8b5cf6"></i>ESLint</span>
+        <span class="chip"><i style="background:#22d3ee"></i>oxlint</span>
+        <span class="chip"><i style="background:#4ade80"></i>Editor + CI</span>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card json">
+        <div class="card-head"><b></b><b></b><b></b><span>approvals.json</span></div>
+<pre><span class="p">{</span>
+  <span class="k">"no-explicit-any"</span><span class="p">: {</span>
+    <span class="s">"src/api.ts"</span><span class="p">:</span> <span class="n">12</span>
+  <span class="p">},</span>
+  <span class="k">"no-underscore-dangle"</span><span class="p">: {</span>
+    <span class="s">"src/utils.ts"</span><span class="p">:</span> <span class="n">3</span>
+  <span class="p">}</span>
+<span class="p">}</span></pre>
+      </div>
+
+      <div class="card term">
+        <div class="card-head"><b></b><b></b><b></b><span>eslint-exceptions check</span></div>
+        <div class="body">
+          <div class="row ok"><span class="dot">✓</span><span class="strong">15 approved</span><span class="muted">hidden</span></div>
+          <div class="row bad"><span class="dot">✕</span><span class="strong">1 new</span><span class="muted">src/utils.ts 9:7</span></div>
+          <div class="exit">✖ exit 1 · 4 found, 3 approved</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
