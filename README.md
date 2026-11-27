@@ -2,6 +2,8 @@
 
 Approve a fixed number of lint violations per file with an `approvals.json` file. Works with **ESLint** and **oxlint**.
 
+**[Documentation](https://assuncaocharles.github.io/eslint-plugin-exceptions/docs.html)** · **[Playground](https://assuncaocharles.github.io/eslint-plugin-exceptions/playground.html)**
+
 ## Why?
 
 When you turn on a stricter rule in an existing codebase, you rarely want to fix every violation at once. This package lets you:
@@ -351,6 +353,14 @@ How it works (`.github/workflows/publish.yml`):
 - The current version is the highest of the `vX.Y.Z` git tags and the versions on npm. The `version` field in `package.json` stays `0.0.0-development` and is set only at publish time, so releases never need a commit pushed to `master`.
 - After the tests pass, the workflow publishes with [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token is stored in the repo. It then creates the tag and a GitHub release with generated notes.
 - If a publish fails, re-run the **Publish** workflow from the Actions tab. A commit that already has a release tag is never published twice.
+
+### Docs site and playground
+
+The site in `site/` is built from this README and deployed to GitHub Pages after each release. To work on it locally:
+
+```bash
+npm run dev:site   # builds site/dist and serves http://localhost:4173
+```
 
 ## License
 

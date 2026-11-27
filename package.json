@@ -17,8 +17,10 @@
     }
   },
   "scripts": {
-    "test": "node test/test.js && node test/lsp.test.js && node test/release.test.js",
-    "prepublishOnly": "npm test"
+    "test": "node test/test.js && node test/lsp.test.js && node test/release.test.js && node test/site.test.js",
+    "prepublishOnly": "npm test",
+    "build:site": "node site/build.mjs",
+    "dev:site": "node site/build.mjs --serve"
   },
   "keywords": [
     "eslint",
@@ -39,7 +41,20 @@
     "oxlint": ">=1.0.0"
   },
   "devDependencies": {
+    "@codemirror/commands": "6.11.1",
+    "@codemirror/lang-javascript": "6.2.5",
+    "@codemirror/lang-json": "6.0.2",
+    "@codemirror/language": "6.13.1",
+    "@codemirror/lint": "6.9.7",
+    "@codemirror/state": "6.7.6",
+    "@codemirror/view": "6.43.15",
+    "@lezer/highlight": "1.2.5",
+    "codemirror": "6.0.2",
+    "esbuild": "0.28.2",
     "eslint": "^8.57.0",
+    "eslint-linter-browserify": "10.14.0",
+    "highlight.js": "11.12.0",
+    "marked": "18.2.0",
     "oxlint": "^1.95.0"
   },
   "engines": {
@@ -60,7 +75,7 @@
       "optional": true
     }
   },
-  "homepage": "https://github.com/assuncaocharles/eslint-plugin-exceptions#readme",
+  "homepage": "https://assuncaocharles.github.io/eslint-plugin-exceptions/",
   "bugs": {
     "url": "https://github.com/assuncaocharles/eslint-plugin-exceptions/issues"
   }
