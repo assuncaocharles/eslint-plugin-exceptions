@@ -88,16 +88,24 @@ function createEditor(parent, doc, language, onChange) {
         syntaxHighlighting(highlight),
         editorTheme,
         EditorView.updateListener.of((update) => {
-          if (update.docChanged) onChange(update.state.doc.toString());
+          // Only edits made by the user count, not loading an example
+          if (update.docChanged && !settingDoc) onChange(update.state.doc.toString());
         }),
       ],
     }),
   });
 }
 
+let settingDoc = false;
+
 function setDoc(view, text) {
   if (view.state.doc.toString() === text) return;
-  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text } });
+  settingDoc = true;
+  try {
+    view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text } });
+  } finally {
+    settingDoc = false;
+  }
 }
 
 $("#code-editor").textContent = "";
