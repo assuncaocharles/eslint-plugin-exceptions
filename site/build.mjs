@@ -18,6 +18,9 @@ const read = (file) => fs.readFileSync(path.join(here, file), "utf8");
 
 const REPO = "https://github.com/assuncaocharles/eslint-plugin-exceptions";
 const NPM = "https://www.npmjs.com/package/eslint-plugin-exceptions";
+const SITE_URL = "https://assuncaocharles.github.io/eslint-plugin-exceptions/";
+const OG_IMAGE_ALT =
+  "eslint-plugin-exceptions: strict lint rules today, old code later. An approvals.json file next to a check that hides 15 approved violations and reports 1 new one.";
 
 // ---------- Helpers ----------
 
@@ -121,7 +124,10 @@ function renderDocs() {
     },
   });
 
-  const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+  // The README banner is for GitHub and npm; the site has its own header
+  const readme = fs
+    .readFileSync(path.join(root, "README.md"), "utf8")
+    .replace(/<!-- site:skip -->[\s\S]*?<!-- \/site:skip -->\n*/g, "");
   const body = marked
     .parse(readme)
     .replace(/<table>/g, '<div class="table-scroll"><table>')
@@ -159,7 +165,9 @@ const FAVICON =
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#4f46e5"/><path d="M9 16.5l4.5 4.5L23 11.5" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   );
 
-function layout({ page, title, description, body, scripts = [] }) {
+function layout({ file, page, title, description, body, scripts = [] }) {
+  const url = new URL(file === "index.html" ? "" : file, SITE_URL).href;
+  const image = new URL("og.png", SITE_URL).href;
   const v = version();
   const nav = [
     ["home", "index.html", "Home"],
@@ -179,8 +187,21 @@ function layout({ page, title, description, body, scripts = [] }) {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}" />
+<link rel="canonical" href="${url}" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="eslint-plugin-exceptions" />
+<meta property="og:url" content="${url}" />
 <meta property="og:title" content="${escapeHtml(title)}" />
 <meta property="og:description" content="${escapeHtml(description)}" />
+<meta property="og:image" content="${image}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="${escapeHtml(OG_IMAGE_ALT)}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="${escapeHtml(title)}" />
+<meta name="twitter:description" content="${escapeHtml(description)}" />
+<meta name="twitter:image" content="${image}" />
+<meta name="twitter:image:alt" content="${escapeHtml(OG_IMAGE_ALT)}" />
 <meta name="theme-color" content="#4f46e5" />
 <link rel="icon" href="${FAVICON}" />
 <script>
@@ -282,6 +303,7 @@ async function build() {
     fs.writeFileSync(path.join(out, page.file), layout(page));
   }
   fs.writeFileSync(path.join(out, ".nojekyll"), "");
+  fs.cpSync(path.join(here, "public"), out, { recursive: true });
 
   const files = fs.readdirSync(path.join(out, "assets")).filter((f) => f.endsWith(".js"));
   const sizes = files.map((f) => `${f} ${(fs.statSync(path.join(out, "assets", f)).size / 1024).toFixed(0)} KB`);
@@ -289,7 +311,7 @@ async function build() {
 }
 
 function serve(port = 4173) {
-  const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".map": "application/json", ".txt": "text/plain" };
+  const types = { ".png": "image/png", ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".map": "application/json", ".txt": "text/plain" };
   http
     .createServer((req, res) => {
       const url = decodeURIComponent(new URL(req.url, "http://x").pathname);

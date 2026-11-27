@@ -1,3 +1,17 @@
+<!-- site:skip -->
+<p align="center">
+  <a href="https://assuncaocharles.github.io/eslint-plugin-exceptions/">
+    <img src="https://raw.githubusercontent.com/assuncaocharles/eslint-plugin-exceptions/master/site/public/og.png" alt="eslint-plugin-exceptions: strict lint rules today, old code later. Approve existing violations per file in approvals.json and fail only on new ones." width="100%" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/eslint-plugin-exceptions"><img src="https://img.shields.io/npm/v/eslint-plugin-exceptions?color=4f46e5&label=npm" alt="npm version" /></a>
+  <a href="https://github.com/assuncaocharles/eslint-plugin-exceptions/actions/workflows/ci.yml"><img src="https://github.com/assuncaocharles/eslint-plugin-exceptions/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
+  <a href="#license"><img src="https://img.shields.io/npm/l/eslint-plugin-exceptions?color=4f46e5" alt="MIT license" /></a>
+</p>
+<!-- /site:skip -->
+
 # eslint-plugin-exceptions
 
 Approve a fixed number of lint violations per file with an `approvals.json` file. Works with **ESLint** and **oxlint**.
@@ -361,6 +375,8 @@ The site in `site/` is built from this README and deployed to GitHub Pages after
 ```bash
 npm run dev:site   # builds site/dist and serves http://localhost:4173
 ```
+
+The social preview image (`site/public/og.png`) is rendered from `site/og/og.html`. After editing the HTML, regenerate it with `npm run og` (needs Playwright with Chromium).
 
 ## License
 
