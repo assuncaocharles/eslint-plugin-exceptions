@@ -1,0 +1,175 @@
+<section class="hero">
+  <div class="container">
+    <div class="eyebrow">Works with ESLint and oxlint</div>
+    <h1>Turn on strict lint rules <em>today</em>. Fix the old code later.</h1>
+    <p class="lead">
+      Record the violations that already exist in <code>approvals.json</code>, per rule and per file.
+      Anything new fails the build. Lower the counts as you clean up.
+    </p>
+    <div class="hero-actions">
+      <a class="button button-primary" href="docs.html#using-with-eslint">Get started</a>
+      <a class="button" href="playground.html">
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M6.3 2.84A1.5 1.5 0 0 0 4 4.11v11.78a1.5 1.5 0 0 0 2.3 1.27l9.34-5.89a1.5 1.5 0 0 0 0-2.54L6.3 2.84Z"/></svg>
+        Try the playground
+      </a>
+    </div>
+
+    <div class="install">
+      <div class="tabs" role="tablist" data-tabs>
+        <button role="tab" aria-selected="true" aria-controls="install-eslint">ESLint</button>
+        <button role="tab" aria-selected="false" aria-controls="install-oxlint">oxlint</button>
+      </div>
+      <div id="install-eslint" role="tabpanel" class="code-block">
+        <pre><code>{{shell:npm install --save-dev eslint-plugin-exceptions
+npx eslint-exceptions             # writes approvals.json}}</code></pre>
+        <button class="copy" aria-label="Copy">{{icon:copy}}</button>
+      </div>
+      <div id="install-oxlint" role="tabpanel" class="code-block" hidden>
+        <pre><code>{{shell:npm install --save-dev oxlint eslint-plugin-exceptions
+npx eslint-exceptions --linter oxlint             # writes approvals.json
+npx eslint-exceptions check --linter oxlint       # use in CI}}</code></pre>
+        <button class="copy" aria-label="Copy">{{icon:copy}}</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">How it works</div>
+      <h2>A ratchet for lint debt</h2>
+      <p>Existing violations are approved per file. The count can only go down, so the codebase gets stricter with every change.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">1</span>
+        <h3>Record what exists</h3>
+        <p>The CLI runs your linter and writes the current count of every rule in every file.</p>
+        <div class="code-block"><pre><code>{{shell:npx eslint-exceptions}}</code></pre></div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span>
+        <h3>Block anything new</h3>
+        <p>Approved violations are hidden. A file that goes over its count fails, in CI and in the editor.</p>
+        <div class="code-block"><pre><code>{{shell:npx eslint .              # ESLint
+npx eslint-exceptions check  # oxlint}}</code></pre></div>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span>
+        <h3>Lower the counts</h3>
+        <p>When a file gets cleaner, its count drops. <code>--strict</code> makes sure the file is updated.</p>
+        <div class="code-block"><pre><code>{{shell:npx eslint-exceptions check --strict}}</code></pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">Example</div>
+      <h2>Three approved, one new</h2>
+      <p><code>src/utils.ts</code> is approved for three <code>no-underscore-dangle</code> violations. Someone adds a fourth.</p>
+    </div>
+    <div class="demo">
+      <div class="code-block">
+        <div class="code-title"><span>approvals.json</span></div>
+        <pre><code>{{json:{
+  "no-underscore-dangle": {
+    "src/utils.ts": 3
+  },
+  "@typescript-eslint/no-explicit-any": {
+    "src/api/client.ts": 10
+  }
+}}}</code></pre>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>npx eslint .</span></div>
+<pre><span class="t-file">src/utils.ts</span>
+<span class="t-error">  9:7  error</span>  Unexpected dangling '_' in '_privateVar4'
+<span class="t-dim">       (4 violations found, but only 3 approved</span>
+<span class="t-dim">        in approvals.json)  no-underscore-dangle</span>
+
+<span class="t-error">✖ 1 problem (1 error, 0 warnings)</span></pre>
+      </div>
+    </div>
+    <p class="demo-caption">The three old violations stay quiet. Only the new one is reported, with context. <a href="playground.html">Try it in the playground →</a></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">Features</div>
+      <h2>Fits into the tools you already use</h2>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">{{icon:plug}}</div>
+        <h3>ESLint processor</h3>
+        <p>One line in your flat or legacy config. Works with any parser and plugin.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">{{icon:bolt}}</div>
+        <h3>oxlint support</h3>
+        <p>A CLI wraps oxlint's JSON output and applies the same approvals.json.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">{{icon:editor}}</div>
+        <h3>Editor integration</h3>
+        <p>The editor hides approved violations, with the ESLint extension or the oxc extension.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">{{icon:folders}}</div>
+        <h3>Monorepo friendly</h3>
+        <p>Each package can have its own approvals.json. The nearest one wins.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">{{icon:shield}}</div>
+        <h3>Strict mode for CI</h3>
+        <p>Fail when a count is higher than needed, so fixed violations can't come back.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">{{icon:swap}}</div>
+        <h3>One file for both linters</h3>
+        <p>oxlint rule codes map to ESLint rule IDs, which helps while migrating.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="kicker">ESLint or oxlint</div>
+      <h2>Same approvals, two integrations</h2>
+    </div>
+    <div class="table-scroll">
+      <table class="compare">
+        <thead>
+          <tr><th></th><th>ESLint</th><th>oxlint</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>Integration</th><td>Processor in your ESLint config</td><td><code>eslint-exceptions check</code> wraps oxlint</td></tr>
+          <tr><th>Editor</th><td>ESLint extension, no extra setup</td><td>Point the oxc extension at the bundled wrapper</td></tr>
+          <tr><th>Generate approvals</th><td><code>npx eslint-exceptions</code></td><td><code>npx eslint-exceptions --linter oxlint</code></td></tr>
+          <tr><th>Enforce in CI</th><td><code>npx eslint .</code></td><td><code>npx eslint-exceptions check --linter oxlint</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="cta">
+      <h2>See it work on your own code</h2>
+      <p>The playground runs real ESLint rules in your browser and applies approvals.json exactly like the plugin does.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="playground.html">Open the playground</a>
+        <a class="button" href="docs.html">Read the docs</a>
+      </div>
+    </div>
+  </div>
+</section>
