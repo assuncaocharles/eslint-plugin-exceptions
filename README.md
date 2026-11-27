@@ -335,13 +335,15 @@ DEBUG_EXCEPTIONS=1 npx eslint src/
 
 ## Releasing
 
-Releases are published to npm from GitHub Actions (`.github/workflows/publish.yml`) with [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token is stored in the repo. A release is triggered by pushing a version tag:
+Releases are published to npm from GitHub Actions (`.github/workflows/publish.yml`) with [trusted publishing](https://docs.npmjs.com/trusted-publishers), so no npm token is stored in the repo.
+
+To release, open a PR that bumps `version` in `package.json` (and `package-lock.json`):
 
 ```bash
 npm run release:minor   # or release:patch / release:major
 ```
 
-This bumps the version in `package.json`, commits, tags `vX.Y.Z` and pushes. The workflow checks that the tag matches `package.json`, runs the tests and publishes.
+When the PR is merged, the workflow sees a version that isn't on npm yet, runs the tests, publishes it and creates the `vX.Y.Z` tag and GitHub release. Merges that don't change the version publish nothing. To retry a failed publish, run the workflow by hand from the Actions tab.
 
 ## License
 
