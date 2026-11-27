@@ -20,7 +20,8 @@
     "test": "node test/test.js && node test/lsp.test.js && node test/release.test.js && node test/site.test.js",
     "prepublishOnly": "npm test",
     "build:site": "node site/build.mjs",
-    "dev:site": "node site/build.mjs --serve"
+    "dev:site": "node site/build.mjs --serve",
+    "og": "node site/og/render.js"
   },
   "keywords": [
     "eslint",
