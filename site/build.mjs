@@ -38,11 +38,13 @@ function highlight(code, lang) {
 function version() {
   if (process.env.SITE_VERSION) return process.env.SITE_VERSION;
   try {
-    return execFileSync("git", ["describe", "--tags", "--abbrev=0", "--match", "v*"], {
+    // Highest release tag, whether or not it is in HEAD's history
+    const tags = execFileSync("git", ["tag", "--list", "v*", "--sort=-v:refname"], {
       cwd: root,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
+    });
+    return tags.split("\n").find((t) => /^v\d+\.\d+\.\d+$/.test(t)) || "";
   } catch {
     return "";
   }

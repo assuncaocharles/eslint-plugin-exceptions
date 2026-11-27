@@ -1,0 +1,53 @@
+# One-off: point the v1.2.0 and v1.2.1 tags at the rewritten master commits.
+# The history rewrite changed every commit ID; these tags still point at the
+# old commits. Run it from Actions > "Move release tags" > Run workflow.
+# Safe to delete once it has run.
+name: Move release tags
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write # push tags
+
+jobs:
+  move:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Move tags
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # tag  new commit (on rewritten master)
+          moves="
+          v1.2.0 b034bc92bde5c59f88ae26df523e94d54b236c67
+          v1.2.1 db6d71adf3dcacffe8b235121e2b18bf3a3bdbf1
+          "
+
+          echo "$moves" | while read -r tag target; do
+            [ -n "$tag" ] || continue
+            old="$(git rev-parse "$tag^{commit}")"
+
+            if [ "$old" = "$target" ]; then
+              echo "$tag already points at $target"
+              continue
+            fi
+            if ! git merge-base --is-ancestor "$target" origin/master; then
+              echo "::error::$target is not on master"; exit 1
+            fi
+            # Only move a tag to a commit with exactly the same files
+            if [ "$(git rev-parse "$old^{tree}")" != "$(git rev-parse "$target^{tree}")" ]; then
+              echo "::error::$tag: $target has different files than $old"; exit 1
+            fi
+
+            git tag -f "$tag" "$target"
+            git push --force origin "refs/tags/$tag"
+            echo "$tag: $old -> $target"
+          done
